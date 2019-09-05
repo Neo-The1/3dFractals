@@ -1,0 +1,41 @@
+shader mandelbulb( vector texCoord  = vector(u, v, w),
+                   int iterations = 100,
+                   float escapeLimit = 2
+                   output color Col = 0,
+                   output float density = 0)
+{
+    float pi = 3.14159265;
+    float x0 = texCoord[0];
+    float y0 = texCoord[1];
+    float z0 = texCoord[2];
+
+    float x = 0;
+    float y = 0;
+    float z = 0;
+
+    int niter = 0;
+    while ( niter <= iterations )
+    {
+        // Daniel White's formula for squaring triplets (x, y, z)
+	// http://www.fractalforums.com/3d-fractal-generation/true-3d-mandlebrot-type-fractal/msg4109/#msg4109
+        float r = pow(x*x + y*y +z*z, 0.5);
+        float yang = atan2(sqrt(x*x + y*y), z);
+        float zang = atan2(y, x);
+
+        x = (r*r) * sin( yang*2 + 0.5*pi ) * cos(zang*2 +pi);
+        y = (r*r) * sin( yang*2 + 0.5*pi ) * sin(zang*2 +pi);
+        z = (r*r) * cos( yang*2 + 0.5*pi );
+
+        x = x + x0;
+        y = y + y0;
+        z = z + z0;
+
+        if ( x*x + y*y + z*z > escapeLimit )
+            break;
+
+        niter = niter + 1;
+    }
+
+    density = (float)niter / (float)iterations;
+    Col = wavelength_color(420 + pow(density, 1) * 2000);
+}
