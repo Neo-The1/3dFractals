@@ -1,6 +1,7 @@
-shader mandelbulb( vector texCoord  = vector(u, v, w),
+shader mandelbulb( vector texCoord  = vector(u, v, 0),
                    int iterations = 100,
-                   float escapeLimit = 2
+                   float escapeLimit = 2,
+		   int power = 2,
                    output color Col = 0,
                    output float density = 0)
 {
@@ -16,15 +17,17 @@ shader mandelbulb( vector texCoord  = vector(u, v, w),
     int niter = 0;
     while ( niter <= iterations )
     {
-        // Daniel White's formula for squaring triplets (x, y, z)
-	// http://www.fractalforums.com/3d-fractal-generation/true-3d-mandlebrot-type-fractal/msg4109/#msg4109
+        /* Daniel White's formula for squaring triplets (x, y, z)
+	   http://www.fractalforums.com/3d-fractal-generation/true-3d-mandlebrot-type-fractal/msg4109/#msg4109
+	*/
         float r = pow(x*x + y*y +z*z, 0.5);
         float yang = atan2(sqrt(x*x + y*y), z);
         float zang = atan2(y, x);
+	float mag  = pow(r, power);
 
-        x = (r*r) * sin( yang*2 + 0.5*pi ) * cos(zang*2 +pi);
-        y = (r*r) * sin( yang*2 + 0.5*pi ) * sin(zang*2 +pi);
-        z = (r*r) * cos( yang*2 + 0.5*pi );
+        x = mag * sin( yang*power + 0.5*pi ) * cos(zang*power +pi);
+        y = mag * sin( yang*power + 0.5*pi ) * sin(zang*power +pi);
+        z = mag * cos( yang*power + 0.5*pi );
 
         x = x + x0;
         y = y + y0;
